@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpenderTracker.API", "Spend
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpenderTracker.Core", "SpenderTracker.Core\SpenderTracker.Core.csproj", "{DB1D6841-AC4E-47DE-9887-9074D74CFA4D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpenderTracker.Tests", "SpenderTracker.Tests\SpenderTracker.Tests.csproj", "{47764084-51AD-4AD6-80C2-D93EA78CEDDE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{DB1D6841-AC4E-47DE-9887-9074D74CFA4D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DB1D6841-AC4E-47DE-9887-9074D74CFA4D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DB1D6841-AC4E-47DE-9887-9074D74CFA4D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{47764084-51AD-4AD6-80C2-D93EA78CEDDE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{47764084-51AD-4AD6-80C2-D93EA78CEDDE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{47764084-51AD-4AD6-80C2-D93EA78CEDDE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{47764084-51AD-4AD6-80C2-D93EA78CEDDE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
