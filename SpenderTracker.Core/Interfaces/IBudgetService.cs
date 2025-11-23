@@ -1,5 +1,8 @@
-﻿ namespace SpenderTracker.Core.Interfaces;
+﻿using SpenderTracker.Data.Dto;
+using SpenderTracker.Data.Model;
 
-public interface IBudgetService
+namespace SpenderTracker.Core.Interfaces;
+
+public interface IBudgetService : IBaseService<Budget, BudgetDto>
 {
 }

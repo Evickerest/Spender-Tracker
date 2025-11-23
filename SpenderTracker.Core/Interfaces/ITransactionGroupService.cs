@@ -1,5 +1,8 @@
-﻿namespace SpenderTracker.Core.Interfaces;
+﻿using SpenderTracker.Data.Dto;
+using SpenderTracker.Data.Model;
 
-public interface ITransactionGroupService
+namespace SpenderTracker.Core.Interfaces;
+
+public interface ITransactionGroupService : IBaseService<TransactionGroup, TransactionGroupDto>
 {
 }

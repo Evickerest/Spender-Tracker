@@ -1,5 +1,9 @@
-﻿namespace SpenderTracker.Core.Interfaces;
+﻿using SpenderTracker.Data.Dto;
+using SpenderTracker.Data.Model;
 
-public interface ITransactionMethodService
+namespace SpenderTracker.Core.Interfaces;
+
+public interface ITransactionMethodService : IBaseService<TransactionMethod, TransactionMethodDto>
 {
+    List<TransactionMethodDto> GetAllByAccountId(int accountId);
 }

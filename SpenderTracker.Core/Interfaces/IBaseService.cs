@@ -11,4 +11,5 @@ public interface IBaseService<TEntity, TDto>
     TDto? Insert(TDto dto);
     bool Update(TDto dto);
     bool Delete(TDto dto);
+    bool DoesExist(int id);
 }

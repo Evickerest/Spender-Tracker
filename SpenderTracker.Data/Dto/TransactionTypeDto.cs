@@ -1,6 +1,6 @@
 ﻿using SpenderTracker.Data.Interface;
 
-namespace SpenderTracker.Data.Model;
+namespace SpenderTracker.Data.Dto;
 
 public class TransactionTypeDto : IDto
 {

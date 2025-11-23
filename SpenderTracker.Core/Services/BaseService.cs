@@ -9,8 +9,8 @@ public class BaseService<TEntity, TDto> : IBaseService<TEntity, TDto>
     where TEntity : class, IEntity<TDto>, new()
     where TDto : class, IDto
 {
-    private readonly ApplicationContext _dbContext;
-    private readonly DbSet<TEntity> _dbSet;
+    protected readonly ApplicationContext _dbContext;
+    protected readonly DbSet<TEntity> _dbSet;
 
     public BaseService(ApplicationContext dbContext)
     {
@@ -62,7 +62,11 @@ public class BaseService<TEntity, TDto> : IBaseService<TEntity, TDto>
         if (entity == null) return false;
 
         _dbSet.Remove(entity);
-        return _dbContext.SaveChanges() > 0;
-
+        return _dbContext.SaveChanges() > 0; 
     } 
+
+    public virtual bool DoesExist(int id)
+    {
+        return _dbSet.AsNoTracking().Any(e => e.Id == id);
+    }
 }
