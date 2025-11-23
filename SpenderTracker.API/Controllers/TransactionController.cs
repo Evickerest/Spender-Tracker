@@ -5,7 +5,7 @@ using SpenderTracker.Data.Dto;
 
 namespace SpenderTracker.API.Controllers;
 
-[Route("api/transaction")]
+[Route("api/transactions")]
 [ApiController]
 public class TransactionController : ControllerBase
 {

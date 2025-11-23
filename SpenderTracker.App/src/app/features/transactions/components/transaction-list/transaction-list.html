@@ -1,1 +1,29 @@
 <p>transaction-list works!</p>
+
+
+<table>
+    <thead>
+        <th>Id</th>
+        <th>Transaction Type Id</th>
+        <th>Transaction Group Id</th>
+        <th>Transaction Method Id</th>
+        <th>Amount</th>
+        <th>Description</th>
+        <th>Timestamp</th>
+    </thead>
+    <tbody>
+        @if (transactions$ | async; as transactions) {
+            @for (t of transactions; track t.id) {
+                <tr>
+                    <td>{{ t.id }}</td>
+                    <td>{{ t.transactionGroupId }}</td>
+                    <td>{{ t.transactionTypeId }}</td>
+                    <td>{{ t.transactionMethodId }}</td>
+                    <td>{{ t.amount }}</td>
+                    <td>{{ t.description }}</td>
+                    <td>{{ t.timestamp }}</td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>

@@ -5,7 +5,7 @@ using SpenderTracker.Data.Dto;
 
 namespace SpenderTracker.API.Controllers;
 
-[Route("api/budget")]
+[Route("api/budgets")]
 [ApiController]
 public class BudgetController : ControllerBase
 {
