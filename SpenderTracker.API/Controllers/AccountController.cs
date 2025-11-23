@@ -125,7 +125,7 @@ public class AccountController : ControllerBase
         return Ok(_methodService.GetAllByAccountId(accountId));
     }
 
-    [HttpPut("{accountId:int}/methods")]
+    [HttpPost("{accountId:int}/methods")]
     public IActionResult InsertMethod(int accountId, [FromBody] TransactionMethodDto dto)
     {
         if (dto == null)
