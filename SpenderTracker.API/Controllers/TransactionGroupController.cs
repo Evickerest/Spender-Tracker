@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using SpenderTracker.Core.Interfaces;
 using SpenderTracker.Data.Dto;
 
@@ -17,9 +16,9 @@ public class TransactionGroupController : ControllerBase
     }
 
     [HttpGet("{id:int}")]
-    public IActionResult GetById(int id)
+    public async Task<IActionResult> GetById(int id, CancellationToken ct)
     {
-        TransactionGroupDto? dto = _groupService.GetById(id);
+        TransactionGroupDto? dto = await _groupService.GetById(id, ct);
         if (dto == null)
         {
             return NotFound($"Could not find Transaction Group with specified id {id}.");
@@ -29,30 +28,31 @@ public class TransactionGroupController : ControllerBase
     }
 
     [HttpGet]
-    public IActionResult GetAll()
+    public async Task<IActionResult> GetAll(CancellationToken ct)
     {
-        return Ok(_groupService.GetAll());
+        var dtos = await _groupService.GetAll(ct);
+        return Ok(dtos);
     }
 
     [HttpPost]
-    public IActionResult Insert([FromBody] TransactionGroupDto dto)
+    public async Task<IActionResult> Insert([FromBody] TransactionGroupDto dto)
     {
         if (dto == null)
         {
             return BadRequest("Transaction Group must be included in the body");
         }
 
-        TransactionGroupDto? group = _groupService.Insert(dto);
+        TransactionGroupDto? group = await _groupService.Insert(dto);
         if (group == null)
         {
-            return StatusCode(500, "An error occurred while creating the TransactionGroup.");
+            return StatusCode(500, "An error occurred while creating the Transaction Group.");
         }
 
         return CreatedAtAction(nameof(GetById), new { id = group.Id }, group);
     }
 
     [HttpPut("{id:int}")]
-    public IActionResult Update(int id, [FromBody] TransactionGroupDto dto)
+    public async Task<IActionResult> Update(int id, [FromBody] TransactionGroupDto dto, CancellationToken ct)
     {
         if (dto == null)
         {
@@ -64,12 +64,12 @@ public class TransactionGroupController : ControllerBase
             return BadRequest("Transaction Group id does not match specified id.");
         }
 
-        if (!_groupService.DoesExist(id))
+        if (!await _groupService.DoesExist(id, ct))
         {
             return NotFound($"Could not find Transaction Group with specified id {id}.");
         }
 
-        bool success = _groupService.Update(dto);
+        bool success = await _groupService.Update(dto);
         if (!success)
         {
             return StatusCode(500, "An error occurred while updating the Transaction Group.");
@@ -79,15 +79,18 @@ public class TransactionGroupController : ControllerBase
     }
 
     [HttpDelete("{id:int}")]
-    public IActionResult Delete(int id)
+    public async Task<IActionResult> Delete(int id, CancellationToken ct)
     {
-        TransactionGroupDto? dto = _groupService.GetById(id);
-        if (dto == null)
+        if (!await _groupService.DoesExist(id, ct))
         {
             return NotFound($"Could not find Transaction Group with specified id {id}.");
+        } 
+
+        if (await _groupService.IsInTransactions(id, ct)) {             
+            return BadRequest("Cannot delete Transaction Group as it is in at least one transaction.");
         }
 
-        bool success = _groupService.Delete(dto);
+        bool success = await _groupService.Delete(id);
         if (!success)
         {
             return StatusCode(500, "An error occurred while deleting the Transaction Group.");

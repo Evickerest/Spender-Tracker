@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using SpenderTracker.Core.Interfaces;
 using SpenderTracker.Data.Dto;
 
@@ -16,16 +15,10 @@ public class TransactionMethodController : ControllerBase
         _methodService = methodService; 
     } 
 
-    [HttpGet("")]
-    public IActionResult GetAll()
-    {
-        return Ok(_methodService.GetAll());
-    }
-
     [HttpGet("{id:int}")]
-    public IActionResult GetById(int id)
+    public async Task<IActionResult> GetById(int id, CancellationToken ct)
     { 
-        TransactionMethodDto? method = _methodService.GetById(id);
+        TransactionMethodDto? method = await _methodService.GetById(id, ct);
         if (method == null)
         {
             return NotFound($"Could not find Transaction Method with specified id {id}");
@@ -34,15 +27,22 @@ public class TransactionMethodController : ControllerBase
         return Ok(method);
     }
 
+    [HttpGet("")]
+    public async Task<IActionResult> GetAll(CancellationToken ct)
+    {
+        var dtos = await _methodService.GetAll(ct);
+        return Ok(dtos);
+    }
+
     [HttpPost("")]
-    public IActionResult InsertMethod([FromBody] TransactionMethodDto dto)
+    public async Task<IActionResult> InsertMethod([FromBody] TransactionMethodDto dto)
     {
         if (dto == null)
         {
             return BadRequest("Transaction Method must be included in the body");
         } 
 
-        TransactionMethodDto? method = _methodService.Insert(dto);
+        TransactionMethodDto? method = await _methodService.Insert(dto);
         if (method == null)
         {
             return StatusCode(500, "An error occurred while creating the Transaction Method.");
@@ -52,7 +52,7 @@ public class TransactionMethodController : ControllerBase
     }
 
     [HttpPut("{id:int}")]
-    public IActionResult UpdateMethod(int id, [FromBody] TransactionMethodDto dto)
+    public async Task<IActionResult> UpdateMethod(int id, [FromBody] TransactionMethodDto dto, CancellationToken ct)
     {
         if (dto == null)
         {
@@ -64,12 +64,12 @@ public class TransactionMethodController : ControllerBase
             return BadRequest("Transaction Method id does not match specified id.");
         } 
 
-        if (!_methodService.DoesExist(id))
+        if (!await _methodService.DoesExist(id, ct))
         {
-            return NotFound($"Could not find Transaction Method with specified id {id}");
+            return NotFound($"Could not find Transaction Method with specified id {id}.");
         }
 
-        bool success = _methodService.Update(dto);
+        bool success = await _methodService.Update(dto);
         if (!success)
         {
             return StatusCode(500, "An error occurred while updating the Transaction Method.");
@@ -79,15 +79,14 @@ public class TransactionMethodController : ControllerBase
     }
 
     [HttpDelete("{id:int}")]
-    public IActionResult DeleteMethod(int id)
+    public async Task<IActionResult> DeleteMethod(int id, CancellationToken ct)
     { 
-        TransactionMethodDto? dto = _methodService.GetById(id);
-        if (dto == null)
+        if (!await _methodService.DoesExist(id, ct))
         {
-            return NotFound($"Could not find Transaction Method with specified id {id}");
-        }
+            return NotFound($"Could not find Transaction Method with specified id {id}.");
+        } 
 
-        bool success = _methodService.Delete(dto);
+        bool success = await _methodService.Delete(id);
         if (!success)
         {
             return StatusCode(500, "An error occurred while deleting the Transaction Method.");

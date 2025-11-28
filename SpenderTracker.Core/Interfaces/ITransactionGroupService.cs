@@ -5,4 +5,5 @@ namespace SpenderTracker.Core.Interfaces;
 
 public interface ITransactionGroupService : IBaseService<TransactionGroup, TransactionGroupDto>
 {
+    Task<bool> IsInTransactions(int id, CancellationToken ct);
 }

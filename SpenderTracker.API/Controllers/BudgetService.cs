@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using SpenderTracker.Core.Interfaces;
 using SpenderTracker.Data.Dto;
 
@@ -9,11 +8,15 @@ namespace SpenderTracker.API.Controllers;
 [ApiController]
 public class BudgetController : ControllerBase
 {
-    private readonly IBudgetService _budgetService; 
+    private readonly IBudgetService _budgetService;
+    private readonly ITransactionGroupService _groupService;
 
-    public BudgetController(IBudgetService budgetService)
+    public BudgetController(
+        IBudgetService budgetService,
+        ITransactionGroupService groupService)
     {
         _budgetService = budgetService;
+        _groupService = groupService;
     }
 
     [HttpGet("{id:int}")]
@@ -32,23 +35,27 @@ public class BudgetController : ControllerBase
     public async Task<IActionResult> GetAll(CancellationToken ct)
     {
         var dtos = await _budgetService.GetAll(ct); 
-        if (dtos == null)
-        {
-            return StatusCode(500, "An error occurred while retrieving Budgets.");
-        }
-
         return Ok(dtos); 
     }
 
     [HttpPost]
-    public IActionResult Insert([FromBody] BudgetDto dto)
+    public async Task<IActionResult> Insert([FromBody] BudgetDto dto, CancellationToken ct)
     { 
         if (dto == null)
         {
             return BadRequest("Budget must be included in the body");
         }
+        
+        if (dto.TransactionGroupId.HasValue)
+        {
+            bool groupExists = await _groupService.DoesExist(dto.TransactionGroupId.Value, ct);
+            if (!groupExists)
+            {
+                return BadRequest($"Could not find Transaction Group with specified id {dto.TransactionGroupId}.");
+            }
+        } 
 
-        BudgetDto? budget = _budgetService.Insert(dto); 
+        BudgetDto? budget = await _budgetService.Insert(dto); 
         if (budget == null)
         {
             return StatusCode(500, "An error occurred while creating the Budget.");
@@ -58,7 +65,7 @@ public class BudgetController : ControllerBase
     }
 
     [HttpPut("{id:int}")]
-    public IActionResult Update(int id, [FromBody] BudgetDto dto)
+    public async Task<IActionResult> Update(int id, [FromBody] BudgetDto dto, CancellationToken ct)
     {
         if (dto == null)
         {
@@ -70,12 +77,12 @@ public class BudgetController : ControllerBase
             return BadRequest("Budget id does not match specified id.");
         } 
 
-        if (!_budgetService.DoesExist(id))
+        if (!await _budgetService.DoesExist(id, ct))
         {
             return NotFound($"Could not find Budget with specified id {id}.");
         } 
 
-        bool success = _budgetService.Update(dto); 
+        bool success = await _budgetService.Update(dto); 
         if (!success)
         {
             return StatusCode(500, "An error occurred while updating the Budget.");
@@ -85,15 +92,14 @@ public class BudgetController : ControllerBase
     }
 
     [HttpDelete("{id:int}")]
-    public IActionResult Delete(int id)
+    public async Task<IActionResult> Delete(int id, CancellationToken ct)
     {
-        BudgetDto? dto = _budgetService.GetById(id);
-        if (dto == null)
+        if (!await _budgetService.DoesExist(id, ct))
         {
             return NotFound($"Could not find Budget with specified id {id}.");
         } 
 
-        bool success = _budgetService.Delete(dto); 
+        bool success = await _budgetService.Delete(id); 
         if (!success)
         {
             return StatusCode(500, "An error occurred while deleting the Budget.");

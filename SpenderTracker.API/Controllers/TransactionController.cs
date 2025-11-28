@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using SpenderTracker.Core.Interfaces;
 using SpenderTracker.Data.Dto;
 
@@ -17,9 +16,9 @@ public class TransactionController : ControllerBase
     }
 
     [HttpGet("{id:int}")]
-    public IActionResult GetById(int id)
+    public async Task<IActionResult> GetById(int id, CancellationToken ct)
     {
-        TransactionDto? dto = _transactionService.GetById(id);
+        TransactionDto? dto = await _transactionService.GetById(id, ct);
         if (dto == null)
         {
             return NotFound($"Could not find Transaction with specified id {id}.");
@@ -29,20 +28,21 @@ public class TransactionController : ControllerBase
     }
 
     [HttpGet]
-    public IActionResult GetAll()
+    public async Task<IActionResult> GetAll(CancellationToken ct)
     {
-        return Ok(_transactionService.GetAll());
+        var dtos = await _transactionService.GetAll(ct); ;
+        return Ok(dtos);
     }
 
     [HttpPost]
-    public IActionResult Insert([FromBody] TransactionDto dto)
+    public async Task<IActionResult> Insert([FromBody] TransactionDto dto)
     {
         if (dto == null)
         {
             return BadRequest("Transaction must be included in the body");
         }
 
-        TransactionDto? transaction = _transactionService.Insert(dto);
+        TransactionDto? transaction = await _transactionService.Insert(dto);
         if (transaction == null)
         {
             return StatusCode(500, "An error occurred while creating the Transaction.");
@@ -52,7 +52,7 @@ public class TransactionController : ControllerBase
     }
 
     [HttpPut("{id:int}")]
-    public IActionResult Update(int id, [FromBody] TransactionDto dto)
+    public async Task<IActionResult> Update(int id, [FromBody] TransactionDto dto, CancellationToken ct)
     {
         if (dto == null)
         {
@@ -64,12 +64,12 @@ public class TransactionController : ControllerBase
             return BadRequest("Transaction id does not match specified id.");
         }
 
-        if (!_transactionService.DoesExist(id))
+        if (!await _transactionService.DoesExist(id, ct))
         {
             return NotFound($"Could not find Transaction with specified id {id}.");
-        }
+        } 
 
-        bool success = _transactionService.Update(dto);
+        bool success = await _transactionService.Update(dto);
         if (!success)
         {
             return StatusCode(500, "An error occurred while updating the Transaction.");
@@ -79,15 +79,14 @@ public class TransactionController : ControllerBase
     }
 
     [HttpDelete("{id:int}")]
-    public IActionResult Delete(int id)
+    public async Task<IActionResult> Delete(int id, CancellationToken ct)
     {
-        TransactionDto? dto = _transactionService.GetById(id);
-        if (dto == null)
+        if (!await _transactionService.DoesExist(id, ct))
         {
-            return NotFound($"Could not find Transaction with specified id {id}.");
-        }
+            return NotFound($"Could not find Transaction with specified id {id}."); 
+        } 
 
-        bool success = _transactionService.Delete(dto);
+        bool success = await  _transactionService.Delete(id);
         if (!success)
         {
             return StatusCode(500, "An error occurred while deleting the Transaction.");

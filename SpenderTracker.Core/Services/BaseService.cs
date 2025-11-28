@@ -20,32 +20,20 @@ public class BaseService<TEntity, TDto> : IBaseService<TEntity, TDto>
 
     public async virtual Task<TDto?> GetById(int id, CancellationToken ct)
     {
-        try
-        {
-            TEntity? entity = await _dbSet.FindAsync([id], ct);
-            if (entity == null) return null;
-            return entity.ToDto(); 
-        } catch(OperationCanceledException)
-        {
-            return null;
-        } 
+        TEntity? entity = await _dbSet.FindAsync([id], ct);
+        if (entity == null) return null;
+        return entity.ToDto();
     }
 
-    public async virtual Task<List<TDto>?> GetAll(CancellationToken ct)
+    public async virtual Task<List<TDto>> GetAll(CancellationToken ct)
     {
-        try
-        {
-            var dtos = await _dbSet.AsNoTracking().
-                Select(e => e.ToDto()).
-                ToListAsync(ct);
-            return dtos; 
-        } catch(OperationCanceledException)
-        {
-            return null;
-        }
+        var dtos = await _dbSet.AsNoTracking().
+            Select(e => e.ToDto()).
+            ToListAsync(ct);
+        return dtos;
     }
 
-    public async virtual Task<TDto?> Insert(TDto dto, CancellationToken ct)
+    public async virtual Task<TDto?> Insert(TDto dto)
     {
         TEntity entity = new();
         _dbSet.Entry(entity).CurrentValues.SetValues(dto); 
@@ -53,20 +41,17 @@ public class BaseService<TEntity, TDto> : IBaseService<TEntity, TDto>
 
         try
         {
-            await _dbContext.SaveChangesAsync(ct);
+            await _dbContext.SaveChangesAsync();
             return entity.ToDto();
         } catch(DbUpdateException)
         {
             return null; 
-        } catch (OperationCanceledException)
-        {
-            return null;
-        }
+        } 
     }
 
-    public virtual async Task<bool> Update(TDto dto, CancellationToken ct)
+    public virtual async Task<bool> Update(TDto dto)
     {
-        TEntity? entity = await _dbSet.FindAsync([dto.Id], ct);
+        TEntity? entity = await _dbSet.FindAsync([dto.Id]);
         if (entity == null) return false;
 
         _dbSet.Entry(entity).CurrentValues.SetValues(dto);
@@ -74,42 +59,30 @@ public class BaseService<TEntity, TDto> : IBaseService<TEntity, TDto>
 
         try
         {
-            await _dbContext.SaveChangesAsync(ct);
+            await _dbContext.SaveChangesAsync();
             return true; 
         } catch (DbUpdateException)
         {
             return false; 
-        } catch (OperationCanceledException)
-        {
-            return false;
-        }
+        } 
     }
 
-    public virtual async Task<bool> Delete(int id, CancellationToken ct)
+    public virtual async Task<bool> Delete(int id)
     { 
         try
         {
-            await _dbSet.Where(e => e.Id == id).ExecuteDeleteAsync(ct);
+            await _dbSet.Where(e => e.Id == id).ExecuteDeleteAsync();
             return true;
         } catch (DbUpdateException)
         {
             return false; 
-        } catch (OperationCanceledException)
-        {
-            return false;
-        }
+        } 
     } 
 
     public virtual async Task<bool> DoesExist(int id, CancellationToken ct)
     {
-        try
-        {
-            bool doesExist = await _dbSet.AsNoTracking().
-                AnyAsync(e => e.Id == id, ct);
-            return doesExist;
-        } catch(OperationCanceledException)
-        {
-            return false;
-        } 
+        bool doesExist = await _dbSet.AsNoTracking().
+            AnyAsync(e => e.Id == id, ct);
+        return doesExist;
     }
 }

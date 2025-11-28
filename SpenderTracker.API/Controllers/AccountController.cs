@@ -21,7 +21,7 @@ public class AccountController : ControllerBase
         AccountDto? dto = await _accountService.GetById(id, ct);
         if (dto == null)
         {
-            return NotFound($"Failed to get Account with id {id}.");
+            return NotFound($"Could not find Account with specified id {id}");
         }
 
         return Ok(dto);
@@ -30,24 +30,19 @@ public class AccountController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAll(CancellationToken ct)
     {
-        var dtos = await _accountService.GetAll(ct);
-        if (dtos == null)
-        {
-            return StatusCode(500, "An error occurred while retrieving Accounts.");
-        }
-
+        var dtos = await _accountService.GetAll(ct); 
         return Ok(dtos);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Insert([FromBody] AccountDto dto, CancellationToken ct)
+    public async Task<IActionResult> Insert([FromBody] AccountDto dto)
     {
         if (dto == null)
         {
             return BadRequest("Account must be included in the body");
-        }
+        } 
 
-        AccountDto? account = await _accountService.Insert(dto, ct);
+        AccountDto? account = await _accountService.Insert(dto);
         if (account == null)
         {
             return StatusCode(500, "An error occurred while creating the Account.");
@@ -69,7 +64,12 @@ public class AccountController : ControllerBase
             return BadRequest("Account id does not match specified id.");
         } 
 
-        bool success = await _accountService.Update(dto, ct);
+        if (!await _accountService.DoesExist(id, ct))
+        {
+           return NotFound($"Account with id {id} does not exist.");
+        } 
+
+        bool success = await _accountService.Update(dto);
         if (!success)
         {
             return StatusCode(500, "An error occurred while updating the Account.");
@@ -81,7 +81,12 @@ public class AccountController : ControllerBase
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id, CancellationToken ct)
     { 
-        bool success = await _accountService.Delete(id, ct);
+        if (!await _accountService.DoesExist(id, ct))
+        {
+           return NotFound($"Account with id {id} does not exist.");
+        } 
+
+        bool success = await _accountService.Delete(id);
         if (!success)
         {
             return StatusCode(500, "An error occurred while deleting the Account.");

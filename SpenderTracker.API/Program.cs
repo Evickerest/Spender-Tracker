@@ -21,12 +21,7 @@ builder.Services.AddScoped<IBudgetService, BudgetService>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<ITransactionGroupService, TransactionGroupService>();
 builder.Services.AddScoped<ITransactionTypeService, TransactionTypeService>(); 
-builder.Services.AddScoped<ITransactionMethodService, TransactionMethodService>();
-
-builder.Host.UseSerilog();
-
-
-
+builder.Services.AddScoped<ITransactionMethodService, TransactionMethodService>(); 
 
 var app = builder.Build();
 
@@ -35,6 +30,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
     app.UseCors("Development");
+    app.UseDeveloperExceptionPage();
 }
 
 app.UseHttpsRedirection();
