@@ -27,13 +27,9 @@ jobs:
     - name: Install MSSQL DB
       uses: potatoqualitee/mssqlsuite@v1.11
       with:
-        install: sqlengine, sqlpackage
-        version: 2022
-        admin-username: root
-        sa-password: root
-        show-log: true
+        install: sqlengine, sqlpackage, sqlclient
     - name: Create Test Database
-      run: sqlcmd -S localhost -U root -P root -Q "CREATE DATABASE SpenderTrackerTest;" -C
+      run: sqlcmd -S localhost -U sa -P dbatools.I0 -d tempdb -Q "CREATE DATABASE SpenderTrackerTest;" -C
     - name: Substitute MSSQL Connection String into appsettings
       uses: microsoft/variable-substitution@v1
       with:
