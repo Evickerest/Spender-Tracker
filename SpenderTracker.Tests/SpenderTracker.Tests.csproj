@@ -39,9 +39,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Data\SeedData.json">
+    <Content Include="Data\SeedData.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
