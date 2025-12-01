@@ -35,7 +35,7 @@ jobs:
     - name: Substitute MSSQL Connection String into appsettings
       uses: microsoft/variable-substitution@v1
       with:
-        files: 'appsettings.json'
+        files: '**/appsettings.json'
       env:
         ConnectionStrings.TestDatabase: "Server=localhost;Database=SpenderTrackerTest;User Id=root;Password=root;TrustServerCertificate=true" 
     - name: Run tests with MSSQL Fixture
