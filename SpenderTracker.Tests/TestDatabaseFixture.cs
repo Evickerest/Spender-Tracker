@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using SpenderTracker.Data.Context;
 using SpenderTracker.Tests.Model;
 using System.Text.Json;
@@ -7,8 +8,7 @@ namespace SpenderTracker.Tests;
 
 public class TestDatabaseFixture
 {
-    private const string ConnectionString = @"data source=MSI\SQLEXPRESS;Database=SpenderTrackerTest;trusted_connection=true;TrustServerCertificate=true";
-    private const string SeedDataFilePath = @"Data\SeedData.json";
+    private const string SeedDataFilePath = @"Data\SeedData.json"; 
 
     private static readonly object _lock = new();
     private static bool _databaseInitialized;
@@ -33,8 +33,23 @@ public class TestDatabaseFixture
     public ApplicationContext CreateContext()
         => new ApplicationContext(
             new DbContextOptionsBuilder<ApplicationContext>()
-                .UseSqlServer(ConnectionString)
+                .UseSqlServer(GetConnectionString())
                 .Options);
+
+    private string GetConnectionString()
+    {
+        var config = new ConfigurationBuilder()
+            .AddJsonFile("appsettings.json")
+            .Build();
+        var conn = config.GetConnectionString("TestDatabase");
+
+        if (conn == null)
+        {
+            throw new ArgumentNullException("Could not get connection string to test database.");
+        } 
+
+        return conn; 
+    }
 
     public void SeedData(ApplicationContext context)
     {

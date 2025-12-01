@@ -24,5 +24,19 @@ jobs:
       run: dotnet restore
     - name: Build
       run: dotnet build --no-restore
-    - name: Test
+    - name: Install MSSQL DB
+      uses: potatoqualitee/mssqlsuite@v1.11
+      with:
+        install: sqlengine, sqlpackage
+        version: 2022
+        admin-username: root
+        sa-password: root
+        show-log: true
+    - name: Substitute MSSQL Connection String into appsettings
+      uses: microsoft/variable-substitution@v1
+      with:
+        files: '${{env.DOTNET_ROOT}}/SpenderTracker.Tests/appsettings.json'
+      env:
+        ConnectionStrings.TestDatabase: "Server=localhost;Database=SpenderTrackerTest;User Id=root;Password=root;TrustServerCertificate=true" 
+    - name: Run tests with MSSQL Fixture
       run: dotnet test --no-build --verbosity normal
