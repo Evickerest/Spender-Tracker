@@ -8,7 +8,7 @@ namespace SpenderTracker.Tests;
 
 public class TestDatabaseFixture
 {
-    private const string SeedDataFilePath = @"Data\SeedData.json"; 
+    private const string SeedDataFilePath = "Data/SeedData.json"; 
 
     private static readonly object _lock = new();
     private static bool _databaseInitialized;
@@ -52,11 +52,12 @@ public class TestDatabaseFixture
     }
 
     public void SeedData(ApplicationContext context)
-    { 
-        if (!File.Exists(SeedDataFilePath))
+    {
+        var localPath = Path.Combine(Directory.GetCurrentDirectory(), SeedDataFilePath);
+        if (!File.Exists(localPath))
             throw new FileNotFoundException("Could not find seed data file.");
 
-        string file = File.ReadAllText(SeedDataFilePath); 
+        string file = File.ReadAllText(localPath); 
         SeedData? data = JsonSerializer.Deserialize<SeedData>(file);
 
         if (data == null)
