@@ -2,25 +2,28 @@ import { Component, computed, effect, ElementRef, inject, linkedSignal, signal, 
 import { APIService } from '../../../../shared/services/apiservice';
 import { Transaction } from '../../models/transaction';
 import { FormsModule } from '@angular/forms';
-import { Router } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { rxResource, toSignal } from '@angular/core/rxjs-interop';
 import { TransactionListDto } from '../../models/transaction-list-dto';
-import { DatePipe, NgClass } from '@angular/common';
+import { DatePipe, NgClass, Location, CurrencyPipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { SelectBox } from "../select-box/select-box";
 import { concat, delay, delayWhen, from, of, scan, startWith } from 'rxjs';
+import { UrlService } from '../../../../shared/services/url-service';
+
 
 @Component({
   selector: 'app-transaction-list',
-  imports: [FormsModule, DatePipe, NgClass, SelectBox],
+  imports: [FormsModule, DatePipe, NgClass, SelectBox, CurrencyPipe],
   templateUrl: './transaction-list.html',
   styleUrl: './transaction-list.css',
 })
 export class TransactionList {
     private readonly apiService = inject(APIService);
-    private readonly http = inject(HttpClient);
+    private readonly urlService = inject(UrlService);
     private readonly router = inject(Router);
-    private readonly baseUrl = "https://localhost:7010/api";
+    private readonly route = inject(ActivatedRoute);
+    private readonly location = inject(Location);
     private readonly typeSelect = viewChild.required<SelectBox>("typeSelect");
     private readonly groupSelect = viewChild.required<SelectBox>("groupSelect");
     private readonly methodSelect = viewChild.required<SelectBox>("methodSelect");
@@ -42,10 +45,7 @@ export class TransactionList {
     // Transactions Resource
     transactions = rxResource({
         params: this.params,
-        stream: (p) => {
-            const filter = this.getQueryFilterString(p.params);
-            return this.http.get<TransactionListDto[]>(`${this.baseUrl}/transactions${filter}`)   
-        }
+        stream: (p) => this.apiService.getAll<TransactionListDto[]>(`transactions${this.getQueryFilterString(p.params)}`)
     });
 
     isLoading = computed(() => 
@@ -82,14 +82,19 @@ export class TransactionList {
         let filterString = filters.join("&");
         if (filterString.length > 1) filterString = "?" + filterString;
 
+        this.location.go(filterString);
+
         return filterString;
     }
 
     addTransaction() {
+        this.urlService.url.set(this.location.path());
         this.router.navigate(["transactions", "new"]);
     }
 
     editTransaction(id: number) {
+        this.urlService.url.set(this.location.path());
+        console.log(this.urlService.url());
         this.router.navigate(["transactions", id, "edit"]);
     }
 

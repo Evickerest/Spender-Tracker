@@ -106,7 +106,7 @@
                             @let amountClass = {income: t.amount > 0, expense: t.amount < 0};
 
                             <td>{{ t.timestamp | date:'mediumDate'}}</td>
-                            <td [ngClass]="amountClass">{{ t.amount }}</td>
+                            <td [ngClass]="amountClass">{{ t.amount | currency:'USD' }}</td>
                             <td>{{ t.type }}</td>
                             <td>{{ t.group }}</td>
                             <td>{{ t.method }}</td>

@@ -10,6 +10,7 @@ import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { Transaction } from '../../models/transaction';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
+import { UrlService } from '../../../../shared/services/url-service';
 
 @Component({
   selector: 'app-transactions-edit',
@@ -19,6 +20,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 })
 export class TransactionsEdit {
     private readonly apiService = inject(APIService);
+    private readonly urlService = inject(UrlService);
     private readonly router = inject(Router);
     private readonly route = inject(ActivatedRoute);
 
@@ -188,7 +190,9 @@ export class TransactionsEdit {
             if (!res) return;
         }
 
-        this.router.navigate([""]);
+        const redirectUrl = this.urlService.url() ?? "";
+        console.log(redirectUrl);
+        this.router.navigateByUrl(redirectUrl);
     }
 
     toLocalDateTime(utcDateTime: string): string {
